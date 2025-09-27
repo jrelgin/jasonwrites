@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><meta name="description" content="Writing on design, development, and creative process by Jason Elgin."><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.13.11"><title>A new piece of writing again — Jason Makes</title><script>
+      (() => {
+        const storageKey = 'jm-theme';
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+        const applyTheme = theme => {
+          root.dataset.theme = theme;
+          root.classList.toggle('dark', theme === 'dark');
+        };
+
+        const getStoredTheme = () => {
+          try {
+            const value = localStorage.getItem(storageKey);
+            if (value === 'light' || value === 'dark') {
+              return value;
+            }
+          } catch (_) {
+            return null;
+          }
+          return null;
+        };
+
+        const getPreferredTheme = () => {
+          const stored = getStoredTheme();
+          if (stored) return stored;
+          return prefersDark.matches ? 'dark' : 'light';
+        };
+
+        const setTheme = theme => {
+          applyTheme(theme);
+          try {
+            localStorage.setItem(storageKey, theme);
+          } catch (_) {
+            /* noop */
+          }
+        };
+
+        applyTheme(getPreferredTheme());
+
+        window.__jmSetTheme = setTheme;
+        window.__jmToggleTheme = () => {
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          setTheme(next);
+        };
+
+        prefersDark.addEventListener('change', event => {
+          if (!getStoredTheme()) {
+            setTheme(event.matches ? 'dark' : 'light');
+          }
+        });
+      })();
+    </script><link rel="stylesheet" href="/_astro/index.D_NWYAoZ.css"></head> <body class="bg-inherit text-inherit transition-colors duration-300"> <div class="layout-container"> <main class="flex flex-1 flex-col gap-10">  <article class="flex flex-col gap-10"> <header class="flex flex-col gap-4"> <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500 dark:text-neutral-400"> Essays </p> <h1 class="text-4xl font-semibold tracking-tight text-balance sm:text-5xl"> A new piece of writing again </h1> <p class="text-lg text-neutral-600 dark:text-neutral-300">This is going to be the summary that shows on the blog rollout page.</p> <figure class="overflow-hidden rounded-3xl border border-neutral-200 shadow-sm dark:border-neutral-800"> <img src="/_astro/cover.0fMw1CNy.png" width="1024" height="1536" alt="A new piece of writing again" loading="lazy" class="h-auto w-full object-cover"> </figure> </header> <div class="prose-flow text-lg"> <article><p>This is the editor. Let&#39;s see what happens now.</p><ul><li>This</li><li>Is</li><li>Something</li><li>Like a</li><li>List</li></ul></article> </div> <footer class="flex flex-wrap gap-2 border-t border-neutral-200 pt-6 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"> <span key="ai" class="rounded-full border border-current px-3 py-1"> ai </span><span key="development" class="rounded-full border border-current px-3 py-1"> development </span> </footer> </article>  </main> </div> <button type="button" data-theme-toggle class="fixed bottom-6 left-6 inline-flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 bg-white text-lg text-neutral-900 shadow-md ring-offset-2 transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 sm:bottom-8 sm:left-8"> <span class="sr-only">Toggle color theme</span> <span data-theme-icon="light" aria-hidden="true">☀️</span> <span data-theme-icon="dark" aria-hidden="true">🌙</span> </button> <script>
+      (() => {
+        const button = document.querySelector('[data-theme-toggle]');
+        if (!button) return;
+
+        const sync = () => {
+          const theme = document.documentElement.dataset.theme || 'light';
+          const nextLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+          button.setAttribute('aria-label', nextLabel);
+          button.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+          button.dataset.themeActive = theme;
+        };
+
+        button.addEventListener('click', () => {
+          window.__jmToggleTheme?.();
+          sync();
+        });
+
+        const observer = new MutationObserver(sync);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+        sync();
+      })();
+    </script> </body> </html>

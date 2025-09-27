@@ -4,19 +4,61 @@ import Layout from '../../layouts/Layout.astro';
 
 const { slug } = Astro.params;
 if (!slug) throw new Error('Slug not found');
-const post = await getEntry('posts', slug);
 
-if (!post) throw new Error('No post found for this slug');
+const post = await getEntry('posts', slug);
+if (!post || post.data.draft) {
+  throw new Error('No published post found for this slug');
+}
+
 const { Content } = await post.render();
+const categoryLabel = post.data.category.charAt(0).toUpperCase() + post.data.category.slice(1);
+const tags = post.data.tags ?? [];
 
 // Generate static pages
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
   return posts.map(post => ({ params: { slug: post.slug } }));
 }
 ---
 
-<Layout title={post.data.title}>
-  <h1>{post.data.title}</h1>
-  <Content />
+<Layout title={`${post.data.title} — Jason Makes`}>
+  <article class="flex flex-col gap-10">
+    <header class="flex flex-col gap-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500 dark:text-neutral-400">
+        {categoryLabel}
+      </p>
+      <h1 class="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+        {post.data.title}
+      </h1>
+      {post.data.summary && (
+        <p class="text-lg text-neutral-600 dark:text-neutral-300">{post.data.summary}</p>
+      )}
+      {post.data.cover && (
+        <figure class="overflow-hidden rounded-3xl border border-neutral-200 shadow-sm dark:border-neutral-800">
+          <img
+            src={post.data.cover.src}
+            width={post.data.cover.width}
+            height={post.data.cover.height}
+            alt={post.data.title}
+            loading="lazy"
+            class="h-auto w-full object-cover"
+          />
+        </figure>
+      )}
+    </header>
+
+    <div class="prose-flow text-lg">
+      <Content />
+    </div>
+
+    {tags.length > 0 && (
+      <footer class="flex flex-wrap gap-2 border-t border-neutral-200 pt-6 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+        {tags.map(tag => (
+          <span key={tag} class="rounded-full border border-current px-3 py-1">
+            {tag}
+          </span>
+        ))}
+      </footer>
+    )}
+  </article>
 </Layout>

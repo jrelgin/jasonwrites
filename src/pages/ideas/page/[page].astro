@@ -1,0 +1,40 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import PostList from '../../../components/PostList.astro';
+import { getPublishedPostsByCategory, paginatePosts, getTotalPages } from '../../../utils/posts';
+
+export const PAGE_CATEGORY = 'ideas';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPostsByCategory(PAGE_CATEGORY);
+  const totalPages = getTotalPages(posts.length);
+  if (totalPages <= 1) {
+    return [];
+  }
+  return Array.from({ length: totalPages - 1 }, (_, index) => ({
+    params: { page: String(index + 2) },
+  }));
+}
+
+const pageParam = Number(Astro.params.page);
+if (Number.isNaN(pageParam)) {
+  throw new Error('Invalid page number');
+}
+
+const posts = await getPublishedPostsByCategory(PAGE_CATEGORY);
+const paginated = paginatePosts(posts, pageParam);
+if (!paginated) {
+  throw new Error(`Page ${pageParam} is out of range for ideas.`);
+}
+
+const { entries, pagination } = paginated;
+---
+
+<Layout title={`Ideas — Jason Makes · Page ${pagination.currentPage}`}>
+  <section class="page-header">
+    <h1 class="page-header__title">Ideas</h1>
+    <p class="page-header__lead">Work-in-progress thoughts, links, and quick takes.</p>
+  </section>
+
+  <PostList posts={entries} pagination={pagination} basePath="/ideas" pageSegment="/page" />
+</Layout>

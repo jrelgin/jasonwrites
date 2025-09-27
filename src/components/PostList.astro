@@ -1,0 +1,111 @@
+---
+import type { PaginationState, PostEntry } from '../utils/posts';
+
+interface Props {
+  posts: PostEntry[];
+  pagination: PaginationState;
+  basePath?: string;
+  pageSegment?: string;
+  heading?: string;
+}
+
+const {
+  posts = [],
+  pagination,
+  basePath = '',
+  pageSegment = '/page',
+  heading,
+} = Astro.props;
+
+const trimmedBase = basePath.endsWith('/') && basePath !== '/' ? basePath.slice(0, -1) : basePath;
+const normalizedBase = trimmedBase || '';
+const normalizedSegment = pageSegment.endsWith('/') ? pageSegment.slice(0, -1) : pageSegment;
+
+const hrefForPage = (page: number) => {
+  if (page <= 1) {
+    return normalizedBase === '' ? '/' : normalizedBase || '/';
+  }
+  return `${normalizedBase}${normalizedSegment}/${page}`;
+};
+
+const categoryLabel = (category: PostEntry['data']['category']) =>
+  category.charAt(0).toUpperCase() + category.slice(1);
+
+const pageNumbers = Array.from({ length: pagination.totalPages }, (_, index) => index + 1);
+---
+
+<section class="flex flex-col gap-8">
+  {heading && <h2 class="text-2xl font-semibold tracking-tight">{heading}</h2>}
+  {posts.length === 0 ? (
+    <p class="text-neutral-600 dark:text-neutral-300">No posts yet. Check back soon.</p>
+  ) : (
+    <ul class="grid gap-6">
+      {posts.map(post => {
+        const tagList = post.data.tags ?? [];
+        return (
+          <li key={post.id}>
+            <article class="article-card">
+              <header class="flex flex-col gap-2">
+                <p class="article-card__meta">{categoryLabel(post.data.category)}</p>
+                <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+                  <a href={`/posts/${post.slug}`} class="text-current no-underline hover:underline">
+                    {post.data.title}
+                  </a>
+                </h2>
+              </header>
+              {post.data.summary && (
+                <p class="article-card__summary">{post.data.summary}</p>
+              )}
+              {tagList.length > 0 && (
+                <ul class="flex flex-wrap gap-2 pt-2 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  {tagList.map(tag => (
+                    <li key={tag} class="rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          </li>
+        );
+      })}
+    </ul>
+  )}
+
+  {pagination.totalPages > 1 && (
+    <nav aria-label="Post pagination" class="pagination">
+      <span class="text-neutral-500 dark:text-neutral-400">
+        Page {pagination.currentPage} of {pagination.totalPages}
+      </span>
+      <ul class="pagination__list">
+        {pagination.hasPrev && (
+          <li>
+            <a href={hrefForPage(pagination.prevPage ?? 1)} class="pagination__button">
+              ← Previous
+            </a>
+          </li>
+        )}
+        {pageNumbers.map(page => (
+          <li key={page}>
+            {page === pagination.currentPage ? (
+              <span aria-current="page" class="pagination__page-is-current">
+                {page}
+              </span>
+            ) : (
+              <a href={hrefForPage(page)} class="pagination__page-link">
+                {page}
+              </a>
+            )}
+          </li>
+        ))}
+        {pagination.hasNext && (
+          <li>
+            <a href={hrefForPage(pagination.nextPage ?? pagination.currentPage + 1)} class="pagination__button">
+              Next →
+            </a>
+          </li>
+        )}
+      </ul>
+    </nav>
+  )}
+</section>

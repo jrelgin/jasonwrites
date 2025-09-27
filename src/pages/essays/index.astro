@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPublishedPostsByCategory, paginatePosts } from '../../utils/posts';
+
+const category = 'essays';
+const posts = await getPublishedPostsByCategory(category);
+const paginated = paginatePosts(posts, 1);
+if (!paginated) {
+  throw new Error('Unable to paginate essay posts.');
+}
+
+const { entries, pagination } = paginated;
+---
+
+<Layout title="Essays — Jason Makes">
+  <section class="page-header">
+    <h1 class="page-header__title">Essays</h1>
+    <p class="page-header__lead">Long-form writing and polished narratives.</p>
+  </section>
+
+  <PostList posts={entries} pagination={pagination} basePath="/essays" pageSegment="/page" />
+</Layout>

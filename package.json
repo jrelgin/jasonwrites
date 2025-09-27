@@ -10,13 +10,13 @@
   "dependencies": {
     "@astrojs/markdoc": "^0.12.9",
     "@astrojs/react": "^4.2.0",
+    "@keystatic/astro": "^5.0.6",
+    "@keystatic/core": "^0.5.48",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "astro": "^5.2.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@keystatic/astro": "^5.0.6",
-    "@keystatic/core": "^0.5.48"
+    "react-dom": "^19.0.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -24,5 +24,11 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
+  },
+  "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912",
+  "devDependencies": {
+    "@astrojs/vercel": "^8.2.8",
+    "@tailwindcss/vite": "^4.1.13",
+    "tailwindcss": "^4.1.13"
   }
 }

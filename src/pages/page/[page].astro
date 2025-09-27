@@ -1,0 +1,49 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPublishedPosts, paginatePosts, getTotalPages } from '../../utils/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  const totalPages = getTotalPages(posts.length);
+  if (totalPages <= 1) {
+    return [];
+  }
+
+  return Array.from({ length: totalPages - 1 }, (_, index) => ({
+    params: { page: String(index + 2) },
+  }));
+}
+
+const pageParam = Number(Astro.params.page);
+if (Number.isNaN(pageParam)) {
+  throw new Error('Invalid page number');
+}
+
+const allPosts = await getPublishedPosts();
+const paginated = paginatePosts(allPosts, pageParam);
+if (!paginated) {
+  throw new Error(`Page ${pageParam} is out of range.`);
+}
+
+const { entries, pagination } = paginated;
+const titleSuffix = pageParam > 1 ? ` — Page ${pageParam}` : '';
+---
+
+<Layout title={`Writing — Jason Makes${titleSuffix}`}>
+  <section class="page-header">
+    <h1 class="page-header__title">Latest writing</h1>
+    <p class="page-header__lead">
+      A running log of essays and ideas from the studio.
+    </p>
+    <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+      Browse by category:
+      {' '}
+      <a href="/ideas" class="font-semibold uppercase tracking-wide">Ideas</a>
+      {' '}·{' '}
+      <a href="/essays" class="font-semibold uppercase tracking-wide">Essays</a>
+    </p>
+  </section>
+
+  <PostList posts={entries} pagination={pagination} basePath="" pageSegment="/page" />
+</Layout>
