@@ -2,6 +2,8 @@
 
 This template shows how you can use Keystatic in an Astro site.
 
+<!-- Trigger Vercel build -->
+
 To setup:
 
 ```bash
