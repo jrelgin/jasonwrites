@@ -13,7 +13,7 @@
 ---
 
 ## 1. Architecture Overview
-- **Status:** In progress — Astro + Keystatic starter running; Tailwind integration and prod storage still to wire up.
+- **Status:** Done — Astro 5 + Keystatic starter is live with Tailwind v4 (`@tailwindcss/vite`) and Vercel adapter; storage auto-selects GitHub creds when supplied, falling back to local for dev, and the Markdown pipeline runs without Markdoc.
 - **Approach:** Static-first
 - **Stack:** **Astro 5** + **Keystatic (self-hosted, Git-backed)**
 - **Styling:** **Tailwind CSS v4** via **`@tailwindcss/vite`** (official v4 path)
@@ -24,7 +24,7 @@
 ---
 
 ## 2. Content Model
-- **Status:** Pending — expand schemas and content files to match plan.
+- **Status:** In progress — Astro content collection + Keystatic schema cover all planned fields, and summary auto-generation now mirrors the Markdown fallback; surfacing canonical/updated metadata remains.
 - **Post**
   - `slug` (string; derived from filename, lowercase-hyphen)
   - `title` (string)
@@ -36,19 +36,19 @@
   - `draft` (bool)
   - `cover` (image, optional)
   - `canonical` (url, optional)
-- **Pages**: About (optional)
+- **Pages**: None for MVP (About page deferred)
 - **Collections**: **Ideas**, **Essays** (category-based views)
 - **Taxonomy**: optional tags → tag archive pages (later)
-- **Frontmatter schema validation:** zod (build-time) _TODO_
+- **Frontmatter schema validation:** zod (build-time) via `src/content/config.ts`
 
 #### Codex Comment — Section 2
-- Plan confirmed. Update `src/content/config.ts` to add the full schema (dates, category enum, summary, tags, draft, etc.).
-- Ensure Keystatic fields mirror the schema so content editors can manage the metadata; migrate existing `.mdoc` entries accordingly.
+- Completed: `src/content/config.ts` now enforces the full schema with optional summaries, Keystatic mirrors those fields, and summary fallbacks auto-generate from body content.
+- Next: surface canonical/updated metadata inside list/detail templates and wire them into SEO helpers.
 
 ---
 
 ## 3. Routing & URLs
-- **Status:** In progress — homepage pagination and `/ideas` + `/essays` archives are live; post detail permalinks remain at `/posts/{slug}` for MVP.
+- **Status:** In progress — `/`, `/page/{n}`, `/ideas`, `/essays`, and `/posts/{slug}` are implemented with consistent pagination; feeds and canonical metadata remain.
 - **Homepage:** `/` = blog list (most recent posts), **20 posts per page** (paginated).
 - **Pagination style:** `/page/2` (root) and `/ideas/page/2`, `/essays/page/2` for category archives.
 - **Permalinks:** **`/posts/{slug}`** for MVP; reevaluate `/writing/{slug}` once the archive is live.
@@ -59,14 +59,14 @@
 - **404:** simple branded 404 page.
 
 #### Codex Comment — Section 3
-- Completed: `/` rollup paginated with `/page/{n}` plus `/ideas` and `/essays` archives with matching pagination.
-- Next: wire detail-page metadata (canonical URLs, RSS feeds) and confirm `/posts/{slug}` remains the canonical pattern for now.
+- Completed: `/` rollup paginated with `/page/{n}` plus `/ideas` and `/essays` archives with matching pagination and category filters.
+- Next: add canonical/link metadata to post detail pages, generate `/rss.xml` + `/sitemap.xml`, and document 404 strategy.
 
 ---
 
 ## 4. Theming & Layout
-- **Status:** Pending — migrate starter styles to Tailwind v4 and add light/dark theming.
-- **Tailwind:** **v4.x** with **`@tailwindcss/vite`**; global stylesheet `src/styles/global.css` contains `@import "tailwindcss"`.
+- **Status:** In progress — Tailwind v4 powers `src/styles/global.css`/`theme.css`, layout primitives use utilities, and the light/dark toggle ships; typography/forms plugins and component polish still to go.
+- **Tailwind:** **v4.x** with **`@tailwindcss/vite`**; `src/styles/theme.css` imports Tailwind, layered into `global.css`.
 - **Plugins (CSS @plugin):** `@tailwindcss/typography` for prose; `@tailwindcss/forms` for the MailerLite form.
 - **Prettier:** `prettier-plugin-tailwindcss` (with `"tailwindStylesheet": "./src/styles/global.css"`), keep it last in Prettier plugins.
 - **Typography:** self-hosted purchased fonts (WOFF2); fallback = system stack; tokens file ready for later.
@@ -75,27 +75,33 @@
 - **Layout primitives:** centered container, responsive grid, `.prose` on articles, pagination, footer with MailerLite embed.
 
 #### Codex Comment — Section 4
-- Replace `src/styles.css` with Tailwind entrypoints and component partials, then wire Tailwind into Astro via `@tailwindcss/vite`.
-- Implement the prefers-color-scheme + toggle flow after Tailwind is live so the layout primitives can rely on utility classes.
+- Completed: Tailwind entry points live in `src/styles/theme.css`/`global.css`, and the layout ships with a persisted theme toggle.
+- Next: add `@plugin '@tailwindcss/typography'` + `@tailwindcss/forms`, refine prose styles, and build footer/pagination primitives per design.
 
 ---
 
 ## 5. Content Pipeline
-- **Status:** Pending — align Keystatic storage and Markdown tooling with the blueprint.
+- **Status:** Done — Keystatic GitHub storage toggles are in place, posts now live as `.md`, remark/rehype plugins are configured, and Astro `<Image />` helpers power responsive covers.
 - **Authoring:** Directly in **Keystatic** (no cloud).
 - **Admin:** `/keystatic` with GitHub App/OAuth in production; local dev can fall back to local storage.
 - **Storage:** Keystatic GitHub App (already provisioned) targeting the main repo; ensure tokens/keys are configured for Vercel.
 - **Publish flow:** Publish = commit to `main`; Draft = `draft: true`.
+- **Production authoring flow:**
+  1. Navigate to `/keystatic` on the deployed site (consider Vercel password/allowlist while previewing).
+  2. Authenticate with the GitHub App; Keystatic writes changes back to the repo via the app credentials.
+  3. Drafts commit to a branch or `main` depending on GitHub App permissions (default = direct to `main`; adjust if PR review is preferred).
+  4. Uploaded assets land in `src/assets/uploads/{slug}/` and are processed by Astro `<Image />`.
+  5. Publishing in the UI commits to GitHub → triggers Vercel build → content is live once the deploy succeeds.
 - **Files:**
   - `/content/posts/*.md` (filename = slug; lowercase-hyphen)
   - `/src/assets/uploads/...` (Keystatic writes here for Astro asset pipeline)
 - **Images:** Use Astro **`<Image />`** for responsive images (e.g., widths 640/960/1280); no Git LFS initially.
-- **Markdown:** remark/rehype (footnotes, slug, autolink, toc, external-links); **`remark-excerpt`** for ~160‑char summaries.
+- **Markdown:** Keystatic `fields.mdx` writes `.md` content; remark/rehype (footnotes, slug, autolink, toc, external-links) and smartypants run globally; summary fallback derives from Markdown body.
 - **Drafts:** excluded from prod; optional local `/drafts` index in dev.
 
 #### Codex Comment — Section 5
-- Move Keystatic to GitHub storage (using the existing app credentials) and mirror the collection schema updates so content flows through commits.
-- Add the remark/rehype pipeline and adopt Astro `<Image />` helpers alongside the Tailwind layout work. With Astro’s asset pipeline, keep uploads in `src/assets/uploads` so the `image()` schema can resolve metadata.
+- Completed: Keystatic storage auto-configures against GitHub when env vars are present; entries save as `.md`, remark/rehype + smartypants run sitewide, post summaries fall back to generated excerpts, and post templates use Astro `<Image />` for covers. Added a temporary `.mdoc → .md` Vite alias so the legacy Markdoc loader no longer runs.
+- Next: document the GitHub App/Vercel secret setup (App ID, private key, webhook secret, default branch behaviour), replace the alias once Keystatic exposes native `.md` lookups, and add tests around draft visibility once CI is wired.
 
 ---
 
@@ -154,10 +160,10 @@
 ---
 
 ## 13. Local Dev
-- **Status:** Done — pnpm scripts working from the starter; update configs once Tailwind is added.
+- **Status:** Done — pnpm/astro scripts run, Tailwind config is active, and local Keystatic works via `pnpm dev`.
 - **Tooling:** pnpm; TypeScript strict; ESLint + Prettier (with `prettier-plugin-tailwindcss`)
 - **Start:** `pnpm dev` / build: `pnpm build`
-- **Files:** import `src/styles/global.css` in `src/layouts/Base.astro`
+- **Files:** import `src/styles/global.css` in `src/layouts/Layout.astro`
 
 ---
 
@@ -172,8 +178,8 @@
 - [x] Pick stack + repo init
 - [x] Content dir + sample posts
 - [x] Routing + **category pages**
-- [ ] Content pipeline (Keystatic GitHub + Markdown tooling)
-- [ ] Layout + typography
+- [x] Content pipeline (Keystatic GitHub + Markdown tooling complete; remark/rehype + `<Image />` running)
+- [ ] Layout + typography (Tailwind + toggle shipped; typography/forms plugins + page chrome outstanding)
 - [ ] SEO meta + feeds
 - [ ] Analytics + consent
 - [ ] Accessibility pass

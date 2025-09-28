@@ -7,9 +7,13 @@ const posts = defineCollection({
       title: z.string(),
       date: z.coerce.date(),
       updated: z.coerce.date().optional(),
-      summary: z.string().min(10, {
-        message: 'Provide a short summary (≈160 characters).',
-      }),
+      summary: z
+        .string()
+        .max(240, {
+          message: 'Keep the summary under 240 characters.',
+        })
+        .optional()
+        .transform(value => value?.trim() ?? ''),
       category: z.enum(['ideas', 'essays']),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),

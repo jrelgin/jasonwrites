@@ -1,5 +1,6 @@
 ---
 import type { PaginationState, PostEntry } from '../utils/posts';
+import { getPostSummary } from '../utils/posts';
 
 interface Props {
   posts: PostEntry[];
@@ -42,6 +43,7 @@ const pageNumbers = Array.from({ length: pagination.totalPages }, (_, index) => 
     <ul class="grid gap-6">
       {posts.map(post => {
         const tagList = post.data.tags ?? [];
+        const summary = getPostSummary(post);
         return (
           <li key={post.id}>
             <article class="article-card">
@@ -53,8 +55,8 @@ const pageNumbers = Array.from({ length: pagination.totalPages }, (_, index) => 
                   </a>
                 </h2>
               </header>
-              {post.data.summary && (
-                <p class="article-card__summary">{post.data.summary}</p>
+              {summary && (
+                <p class="article-card__summary">{summary}</p>
               )}
               {tagList.length > 0 && (
                 <ul class="flex flex-wrap gap-2 pt-2 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">

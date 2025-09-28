@@ -1,8 +1,22 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkSmartypants from 'remark-smartypants';
+import stripMarkdown from 'strip-markdown';
 
 export const POSTS_PER_PAGE = 20;
 export type PostEntry = CollectionEntry<'posts'>;
 export type PostCategory = PostEntry['data']['category'];
+
+const SUMMARY_FALLBACK_LENGTH = 160;
+
+const summaryProcessor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkSmartypants)
+  .use(stripMarkdown)
+  .freeze();
 
 export async function getPublishedPosts() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -56,4 +70,34 @@ export function paginatePosts(posts: PostEntry[], currentPage: number): Paginate
 
 export function getTotalPages(totalItems: number) {
   return Math.max(1, Math.ceil(totalItems / POSTS_PER_PAGE));
+}
+
+function markdownToPlainText(markdown: string) {
+  if (!markdown) {
+    return '';
+  }
+  const file = summaryProcessor.processSync(markdown);
+  return String(file).replace(/\s+/g, ' ').trim();
+}
+
+function truncateText(text: string, maxLength: number) {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  const sliced = text.slice(0, maxLength);
+  const lastSpaceIndex = sliced.lastIndexOf(' ');
+  const safeSlice = lastSpaceIndex > maxLength * 0.6 ? sliced.slice(0, lastSpaceIndex) : sliced;
+  return `${safeSlice.trimEnd()}...`;
+}
+
+export function getPostSummary(post: PostEntry, maxLength = SUMMARY_FALLBACK_LENGTH) {
+  const manualSummary = post.data.summary?.trim();
+  if (manualSummary) {
+    return manualSummary;
+  }
+  const plainText = markdownToPlainText(post.body ?? '');
+  if (!plainText) {
+    return '';
+  }
+  return truncateText(plainText, maxLength);
 }
