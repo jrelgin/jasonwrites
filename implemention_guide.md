@@ -83,13 +83,13 @@
 ## 5. Content Pipeline
 - **Status:** Done — Keystatic GitHub storage toggles are in place, posts now live as `.md`, remark/rehype plugins are configured, and Astro `<Image />` helpers power responsive covers.
 - **Authoring:** Directly in **Keystatic** (no cloud).
-- **Admin:** `/keystatic` with GitHub App/OAuth in production; local dev can fall back to local storage.
+- **Admin:** `/keystatic` guarded by the GitHub App (only signed-in GitHub users with repo access can edit); local dev can fall back to local storage.
 - **Storage:** Keystatic GitHub App (already provisioned) targeting the main repo; ensure tokens/keys are configured for Vercel.
 - **Publish flow:** Publish = commit to `main`; Draft = `draft: true`.
 - **Production authoring flow:**
-  1. Navigate to `/keystatic` on the deployed site (consider Vercel password/allowlist while previewing).
+  1. Navigate to `/keystatic` on the deployed site.
   2. Authenticate with the GitHub App; Keystatic writes changes back to the repo via the app credentials.
-  3. Drafts commit to a branch or `main` depending on GitHub App permissions (default = direct to `main`; adjust if PR review is preferred).
+  3. Publishing commits directly to `main` (no PR stage) using the GitHub App installation permissions.
   4. Uploaded assets land in `src/assets/uploads/{slug}/` and are processed by Astro `<Image />`.
   5. Publishing in the UI commits to GitHub → triggers Vercel build → content is live once the deploy succeeds.
 - **Files:**
@@ -101,7 +101,7 @@
 
 #### Codex Comment — Section 5
 - Completed: Keystatic storage auto-configures against GitHub when env vars are present; entries save as `.md`, remark/rehype + smartypants run sitewide, post summaries fall back to generated excerpts, and post templates use Astro `<Image />` for covers. Added a temporary `.mdoc → .md` Vite alias so the legacy Markdoc loader no longer runs.
-- Next: document the GitHub App/Vercel secret setup (App ID, private key, webhook secret, default branch behaviour), replace the alias once Keystatic exposes native `.md` lookups, and add tests around draft visibility once CI is wired.
+- Next: document the GitHub App/Vercel secret setup (App ID, private key, installation ID, default branch = `main`), install the GitHub App on the repo, wire env vars locally + on Vercel, replace the alias once Keystatic exposes native `.md` lookups, and add tests around draft visibility once CI is wired.
 
 ---
 
