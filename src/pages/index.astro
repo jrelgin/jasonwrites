@@ -1,12 +1,12 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import PostList from '../components/PostList.astro';
-import { getPublishedPosts, paginatePosts } from '../utils/posts';
+import Layout from "../layouts/Layout.astro";
+import PostList from "../components/PostList.astro";
+import { getPublishedPosts, paginatePosts } from "../utils/posts";
 
 const allPosts = await getPublishedPosts();
 const paginated = paginatePosts(allPosts, 1);
 if (!paginated) {
-  throw new Error('Unable to paginate posts for the homepage.');
+  throw new Error("Unable to paginate posts for the homepage.");
 }
 
 const { entries, pagination } = paginated;
@@ -15,17 +15,20 @@ const { entries, pagination } = paginated;
 <Layout title="Writing — Jason Makes">
   <section class="page-header">
     <h1 class="page-header__title">Latest writing 🌈</h1>
-    <p class="page-header__lead">
-      A running log of essays and ideas from the studio.
-    </p>
+    <p class="page-header__lead">A running log of essays and ideas.</p>
     <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">
       Browse by category:
-      {' '}
+      {" "}
       <a href="/ideas" class="font-semibold uppercase tracking-wide">Ideas</a>
-      {' '}·{' '}
+      {" "}·{" "}
       <a href="/essays" class="font-semibold uppercase tracking-wide">Essays</a>
     </p>
   </section>
 
-  <PostList posts={entries} pagination={pagination} basePath="" pageSegment="/page" />
+  <PostList
+    posts={entries}
+    pagination={pagination}
+    basePath=""
+    pageSegment="/page"
+  />
 </Layout>
