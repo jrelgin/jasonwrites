@@ -33,7 +33,7 @@ export default config({
       label: 'Posts',
       slugField: 'title',
       path: 'src/content/posts/*',
-      format: { contentField: 'content' },
+      format: { contentField: 'content', contentExtension: '.md' as const },
       schema: {
         title: fields.slug({
           name: {
@@ -55,12 +55,12 @@ export default config({
         }),
         summary: fields.text({
           label: 'Summary',
-          description: 'Short ~160 character teaser used for listings and meta descriptions.',
+          description: 'Optional ~160 character teaser; leave blank to auto-generate from content.',
           multiline: true,
           validation: {
-            isRequired: true,
-            length: { min: 10, max: 240 },
+            length: { max: 240 },
           },
+          defaultValue: '',
         }),
         category: fields.select({
           label: 'Category',
@@ -96,8 +96,9 @@ export default config({
           label: 'Canonical URL',
           validation: { isRequired: false },
         }),
-        content: fields.markdoc({
+        content: fields.mdx({
           label: 'Content',
+          extension: 'md',
           options: {
             image: {
               directory: 'src/assets/uploads',

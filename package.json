@@ -8,7 +8,6 @@
     "directory": "templates/astro"
   },
   "dependencies": {
-    "@astrojs/markdoc": "^0.12.9",
     "@astrojs/react": "^4.2.0",
     "@keystatic/astro": "^5.0.6",
     "@keystatic/core": "^0.5.48",
@@ -16,7 +15,16 @@
     "@types/react-dom": "^19.0.3",
     "astro": "^5.2.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-external-links": "^3.0.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-smartypants": "^3.0.2",
+    "sharp": "^0.34.4",
+    "strip-markdown": "^6.0.0",
+    "unified": "^11.0.5"
   },
   "scripts": {
     "dev": "astro dev",

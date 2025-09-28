@@ -10,4 +10,4 @@ draft: false
 
 First!
 
-You can edit this page in the [Admin UI](/keystatic/collection/posts/item/first-post), or directly in your IDE at `src/content/posts/first-post.mdoc`.
+You can edit this page in the [Admin UI](/keystatic/collection/posts/item/first-post), or directly in your IDE at `src/content/posts/first-post.md`.

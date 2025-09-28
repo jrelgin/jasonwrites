@@ -1,6 +1,8 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
+import { getPostSummary } from '../../utils/posts';
 
 const { slug } = Astro.params;
 if (!slug) throw new Error('Slug not found');
@@ -11,6 +13,7 @@ if (!post || post.data.draft) {
 }
 
 const { Content } = await post.render();
+const summary = getPostSummary(post);
 const categoryLabel = post.data.category.charAt(0).toUpperCase() + post.data.category.slice(1);
 const tags = post.data.tags ?? [];
 
@@ -21,7 +24,7 @@ export async function getStaticPaths() {
 }
 ---
 
-<Layout title={`${post.data.title} — Jason Makes`}>
+<Layout title={`${post.data.title} — Jason Makes`} description={summary}>
   <article class="flex flex-col gap-10">
     <header class="flex flex-col gap-4">
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500 dark:text-neutral-400">
@@ -30,16 +33,16 @@ export async function getStaticPaths() {
       <h1 class="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
         {post.data.title}
       </h1>
-      {post.data.summary && (
-        <p class="text-lg text-neutral-600 dark:text-neutral-300">{post.data.summary}</p>
+      {summary && (
+        <p class="text-lg text-neutral-600 dark:text-neutral-300">{summary}</p>
       )}
       {post.data.cover && (
         <figure class="overflow-hidden rounded-3xl border border-neutral-200 shadow-sm dark:border-neutral-800">
-          <img
-            src={post.data.cover.src}
-            width={post.data.cover.width}
-            height={post.data.cover.height}
+          <Image
+            src={post.data.cover}
             alt={post.data.title}
+            widths={[640, 960, 1280]}
+            sizes="(min-width: 1024px) 960px, 100vw"
             loading="lazy"
             class="h-auto w-full object-cover"
           />
